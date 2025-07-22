@@ -4,7 +4,7 @@ import fs from "fs";
 cloudinary.config({
   cloud_name: process.env.CLOUDNARY_CLOUD_NAME,
   cloud_api: process.env.CLOUDNARY_CLOUD_API,
-  cloud_secret: CLOUDNARY_CLOUD_SECRET,
+  cloud_secret: process.env.CLOUDNARY_CLOUD_SECRET,
 });
 
 const uploadOnCloudnary  = async(localFilePath) => {
