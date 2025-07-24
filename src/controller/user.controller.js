@@ -261,7 +261,7 @@ const changeCurrentPassword = asyncHandler(async(req, res)=>{
 const getCurrentUser = asyncHandler(async(req, res)=>{
   return res
   .status(200)
-  .json(200, req.user, "current user fetched successfully")
+  .json( new ApiResponse (200, req.user, "current user fetched successfully"))
 }) 
 
 const updateAccountDetails = asyncHandler(async(req,res)=>{
@@ -270,7 +270,7 @@ const updateAccountDetails = asyncHandler(async(req,res)=>{
     throw new ApiError(400, "All fields are required")
   }
 
-   const user = User.findByIdAndUpdate(req.user?._id, {
+   const user =  await User.findByIdAndUpdate(req.user?._id, {
     $set:{
       fullname,
       email,
@@ -290,6 +290,16 @@ const updateUserAvatar = asyncHandler(async(req, res)=>{
    if(!avatarLocalPath) {
     throw new ApiError(400, "avatar file is missing")
    }
+   // delete the old url of the 
+   const CurrentUser = await User.findById(req.user?._id)
+   if(CurrentUser?.avatar){
+    const segments = CurrentUser.avatar.split('/')
+    const publicIdWithExtension = segments[segments.length-1]
+    const publicId = publicIdWithExtension.split('.')[0];
+
+    await cloudinary.uploader.destroy(publicId);
+    
+   }
 
    const avatar =  await uploadOnCloudnary(avatarLocalPath)
 
@@ -308,7 +318,7 @@ const updateUserAvatar = asyncHandler(async(req, res)=>{
    }).select("-password")
 
    return res.status(200)
-  .json(200, user, "Avatar Images is Update is successfully")
+  .json( new ApiResponse(200, user, "Avatar Images is Update is successfully"))
 
 })
 
@@ -330,7 +340,7 @@ const updateUserConverImage = asyncHandler(async(req, res)=>{
   })
 
   return res.status(200)
-  .json(200, user, "Cover Images is Update is successfully")
+  .json(new ApiResponse(200, user, "Cover Images is Update is successfully"))
 
 
 })
